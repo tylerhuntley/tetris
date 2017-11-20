@@ -16,6 +16,8 @@ class Game:
     def pace(self):
         """To handle speed progression..."""
         return 1.0
+        speed = self.score**0.1
+        return 1/(speed+1)
 
     # def main_loop(self):
     #     t = Timer(self.pace, self.main_loop)
@@ -123,7 +125,7 @@ class Grid:
         self.game = game
         self.active_piece = None
         self.rows = []
-        for y in range(HEIGHT+2):
+        for y in range(HEIGHT+3):
             row = []
             for x in range(WIDTH):
                 row.append(Node(self, x, y))
