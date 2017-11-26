@@ -19,35 +19,18 @@ class Game:
         speed = self.score**0.1
         return 1/(speed+1)
 
-    # def main_loop(self):
-    #     t = Timer(self.pace, self.main_loop)
-    #     t.start()
-    #     if not self.started:
-    #         self.start()
-    #
-    #     if self.can_move(0, -1):
-    #         self.move_piece(0, -1)
-    #     else:
-    #         self.freeze_piece()
-    #         self.clear_full_rows()
-    #         if self.game_over():
-    #             t.cancel()
-    #         else:
-    #             self.load_next_piece()
-    #
-    #     # Handle keyboard input
-    #     while self.started:
-    #         if kbhit():
-    #             key = getch()
-    #             if key in MOVES and self.can_move(*MOVES[key]):
-    #                 self.move_piece(*MOVES[key])
-    #             elif key == b'w' and self.can_rotate():
-    #                 self.rotate_piece()
+    def force_move(self):
+        if self.can_move(0, -1):
+            self.move_piece(0, -1)
+        else:
+            self.freeze_piece()
+            self.clear_full_rows()
+            self.load_next_piece()
 
     def choose_new_piece(self):
+        # return I(self)
         tetrad = random.choice([L, J, O, I, S, Z, T])
         return tetrad(self)
-        # return random.choice([L(self), J(self), O(self), I(self), S(self), Z(self), T(self)])
 
     def get_active_blocks(self):
         return self.current_piece.get_blocks_xy()
@@ -101,13 +84,13 @@ class Game:
         rows = self.grid.get_full_rows()
         for row in rows:
             self.grid.clear_row(row)
-            self.score += 10
+            self.score += 100
         self.drop_floating_blocks(rows)
 
     def drop_floating_blocks(self, rows):
         """Lower floating blocks in every row above every empty row"""
         for row in rows:
-            rows_to_drop = (self.grid.rows[i] for i in range(row, HEIGHT))
+            rows_to_drop = (self.grid.rows[i] for i in range(min(rows), HEIGHT))
             for row_to_drop in rows_to_drop:
                 for node in row_to_drop:
                     if node.occupied:
@@ -137,6 +120,10 @@ class Grid:
         except TypeError:
             return Node(self, -1, -1)
 
+    def get_nodes(self):
+        return list(node for row in self.rows for node in row)
+
+
     def load_piece(self, piece):
         self.active_piece = piece
 
@@ -163,15 +150,15 @@ class Node:
         self.grid = grid
         self.occupied = False
         self.coords = (x, y)
-        self.color = [0, 0, 0, 1]
+        self.color = [0, 0, 0]
 
-    def occupy(self, color=(1, 1, 1, 1)):
+    def occupy(self, color=(1, 1, 1)):
         self.occupied = True
         self.color = color
 
     def clear(self):
         self.occupied = False
-        self.color = [0, 0, 0, 1]
+        self.color = [0, 0, 0]
 
 
 def vector_add(x, y):
@@ -185,7 +172,7 @@ def rotate(tup):
 
 class Tetrad:
     def __init__(self, game, shape=None, *args):
-        self.color = [1, 0, 0, 1]
+        self.color = [1, 0, 0]
         self.game = game
         self.center_xy = (0, 0)
         self.blocks = shape
