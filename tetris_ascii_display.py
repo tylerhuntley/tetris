@@ -3,18 +3,43 @@ from time import time
 import os
 
 GAME = Game()
-MOVES = {b'a': (-1, 0),
-         b's': (0, -1),
-         b'd': (1, 0)}
+MOVES = {'a': (-1, 0),
+         's': (0, -1),
+         'd': (1, 0)}
 
-
+# Read keyboard input for Windows
 try:
     from msvcrt import kbhit, getch
+
+# Read keyboard input for Mac/Linux
 except ImportError:
+    import sys, termios, atexit
+    from select import select
+
+    # save the terminal settings
+    fd = sys.stdin.fileno()
+    new_term = termios.tcgetattr(fd)
+    old_term = termios.tcgetattr(fd)
+
+    # new terminal setting unbuffered
+    new_term[3] = (new_term[3] & ~termios.ICANON & ~termios.ECHO)
+
+    def set_normal_term():
+        termios.tcsetattr(fd, termios.TCSAFLUSH, old_term)
+
+    # switch to unbuffered terminal
+    def set_curses_term():
+        termios.tcsetattr(fd, termios.TCSAFLUSH, new_term)
+
+    atexit.register(set_normal_term)
+    set_curses_term()
+
     def kbhit():
-        import tty, termios
+        dr,dw,de = select([sys.stdin], [], [], 0)
+        return dr != []
+
     def getch():
-        pass
+        return sys.stdin.read(1)
 
 
 def main_ext():
@@ -34,7 +59,7 @@ def main_ext():
             if key in MOVES and GAME.can_move(*MOVES[key]):
                 GAME.move_piece(*MOVES[key])
                 display()
-            elif key == b'w' and GAME.can_rotate():
+            elif key == 'w' and GAME.can_rotate():
                 GAME.rotate_piece()
                 display()
 
@@ -62,4 +87,4 @@ def display():
 
 
 if __name__ == '__main__':
-	main_ext()
+    main_ext()
