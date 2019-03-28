@@ -15,9 +15,7 @@ class Game:
     @property
     def pace(self):
         """To handle speed progression..."""
-        return 1.0
-        speed = self.score**0.1
-        return 1/(speed+1)
+        return 2 / (2 + self.score ** 0.33)
 
     def force_move(self):
         if self.can_move(0, -1):
