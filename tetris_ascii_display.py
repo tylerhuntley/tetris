@@ -1,6 +1,4 @@
 from tetris_core import Game
-from threading import Timer
-from msvcrt import kbhit, getch
 from time import time
 import os
 
@@ -8,6 +6,7 @@ GAME = Game()
 MOVES = {b'a': (-1, 0),
          b's': (0, -1),
          b'd': (1, 0)}
+
 
 try:
     from msvcrt import kbhit, getch
@@ -17,69 +16,6 @@ except ImportError:
     def getch():
         pass
 
-
-def main_threaded():
-    """Handle timing of the forced moves, while allowing for input
-    Why did I ever think this was a good idea?"""
-    t = Timer(GAME.pace, main)
-    t.start()
-    if GAME.started:
-        if GAME.can_move(0, -1):
-            GAME.move_piece(0, -1)
-            display()
-        else:
-            GAME.freeze_piece()
-            GAME.clear_full_rows()
-            if GAME.game_over():
-                print('Game Over! Your score was:', GAME.score)
-                t.cancel()
-            else:
-                GAME.load_next_piece()
-                display()
-    else:
-        GAME.start()
-        display()
-
-    # Handle keyboard input
-    while GAME.started:
-        if kbhit():
-            key = getch()
-            if key in MOVES and GAME.can_move(*MOVES[key]):
-                GAME.move_piece(*MOVES[key])
-                display()
-            elif key == b'w' and GAME.can_rotate():
-                GAME.rotate_piece()
-                display()
-
-def main_timed():
-    """Handle timing of the forced moves, while allowing for input"""
-    GAME.start()
-    display()
-    last_force = time()
-    while GAME.started:
-        if last_force + GAME.pace < time():
-            last_force = time()
-            if GAME.can_move(0, -1):
-                GAME.move_piece(0, -1)
-                display()
-            else:
-                GAME.freeze_piece()
-                GAME.clear_full_rows()
-                if GAME.game_over():
-                    print('Game Over! Your score was:', GAME.score)
-                else:
-                    GAME.load_next_piece()
-                    display()
-
-    # Handle keyboard input
-        if kbhit():
-            key = getch()
-            if key in MOVES and GAME.can_move(*MOVES[key]):
-                GAME.move_piece(*MOVES[key])
-                display()
-            elif key == b'w' and GAME.can_rotate():
-                GAME.rotate_piece()
-                display()
 
 def main_ext():
     GAME.start()
@@ -105,23 +41,6 @@ def main_ext():
     print('Game Over! Your score was:', GAME.score)
 
 
-# T = Timer(GAME.pace, main)
-
-
-# def reset_timer(f):
-#     def g():
-#         global T
-#         try:
-#             T.cancel()
-#         except NameError:
-#             pass
-#         f()
-#         # T = Timer(GAME.pace, main)
-#         # T.start()
-#     return g
-
-
-# @reset_timer
 def display():
     """Generate and print an ascii interface for the game"""
     screen = ''
@@ -142,5 +61,5 @@ def display():
     print(screen)
 
 
-# main_timed()
-main_ext()
+if __name__ == '__main__':
+	main_ext()
