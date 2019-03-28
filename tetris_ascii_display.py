@@ -7,27 +7,28 @@ MOVES = {'a': (-1, 0),
          's': (0, -1),
          'd': (1, 0)}
 
-# Read keyboard input for Windows
+# Handle terminal interactions on Windows
 try:
     from msvcrt import kbhit, getch
+    def clear():
+        os.system('cls')
 
-# Read keyboard input for Mac/Linux
+# Handle terminal interactions on Mac/Linux
 except ImportError:
     import sys, termios, atexit
     from select import select
 
-    # save the terminal settings
+    # Save normal terminal settings
     fd = sys.stdin.fileno()
-    new_term = termios.tcgetattr(fd)
     old_term = termios.tcgetattr(fd)
-
-    # new terminal setting unbuffered
-    new_term[3] = (new_term[3] & ~termios.ICANON & ~termios.ECHO)
 
     def set_normal_term():
         termios.tcsetattr(fd, termios.TCSAFLUSH, old_term)
 
-    # switch to unbuffered terminal
+    # Debuffer new terminal until exit
+    new_term = termios.tcgetattr(fd)
+    new_term[3] = (new_term[3] & ~termios.ICANON & ~termios.ECHO)
+
     def set_curses_term():
         termios.tcsetattr(fd, termios.TCSAFLUSH, new_term)
 
@@ -40,6 +41,9 @@ except ImportError:
 
     def getch():
         return sys.stdin.read(1)
+
+    def clear():
+        os.system('clear')
 
 
 def main_ext():
@@ -69,7 +73,7 @@ def main_ext():
 def display():
     """Generate and print an ascii interface for the game"""
     screen = ''
-    os.system('cls')
+    clear()
     for y in range(2, -2, -1):
         temp = '  '
         for x in range(-1, 2):
