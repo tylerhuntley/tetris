@@ -72,14 +72,19 @@ def main_ext():
 
 def display():
     """Generate and print an ascii interface for the game"""
-    screen = ''
-    clear()
+    screen = '~'*32 + '\n'
     for y in range(2, -2, -1):
-        temp = '  '
+        temp = '| '
         for x in range(-1, 2):
             temp += ('  ', '[]')[(x, y) in GAME.get_next_blocks()]
-        screen += temp + '\n'
-    screen += f"  -Next-{' '*(15-len(str(GAME.score)))}Score: {GAME.score}\n"
+        screen += temp
+        if y == 1:
+            screen += f"{' '*13}W  - Turn |\n"
+        elif y == 0:
+            screen += f"{' '*12}ASD - Move |\n"
+        else:
+            screen += ' '*23 + '|\n'
+    screen += f"| -Next-{' '*(14-len(str(GAME.score)))}Score - {GAME.score} |\n"
     screen += '~'*32 + '\n'
     for row in GAME.grid.rows[19::-1]:
         screen += '|'
@@ -87,6 +92,7 @@ def display():
             screen += (' _ ', '[_]')[node.occupied or node.coords in GAME.get_active_blocks()]
         screen += '|\n'
     screen += '~'*32 + '\n'
+    clear()
     print(screen)
 
 
